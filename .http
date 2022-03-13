@@ -1,0 +1,4 @@
+### GET method
+GET http://localhost:8080/api/products
+### POST method
+POST http://localhost:8080/api/products
