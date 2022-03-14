@@ -3,6 +3,7 @@ GET http://localhost:8080/api/products
 
 ### GET all orders
 GET http://localhost:8080/api/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMmY5ODkzNGE1YjViNTRmNWZiMmE1YyIsImlhdCI6MTY0NzI4NjY3NiwiZXhwIjoxNjQ5ODc4Njc2fQ.krVkgdNZdr5tib5ZhFQFRjU0ZQQ7yQQfsJZXpxJb2Vs
 
 ### GET orders by orderID
 GET http://localhost:8080/api/orders/2
@@ -10,14 +11,23 @@ GET http://localhost:8080/api/orders/2
 ### GET cart content
 GET http://localhost:8080/api/cart
 
-### GET users
-GET http://localhost:8080/api/warehouse
-
-###
+### Login user
 POST http://localhost:8080/api/warehouse/login
 Content-Type: application/json
 
 {
-  "email": "birk.kensen@hyperisland.se",
-  "password": "penna1"
+  "email": "hgbrd@email.se",
+  "password": "abc123"
 }
+### Register user
+POST http://localhost:8080/api/warehouse/register
+Content-Type: application/json
+
+{
+  "name": "Hagbard Paulson",
+  "email": "hgbrd@email.se",
+  "password": "abc123"
+}
+###
+GET http://localhost:8080/api/warehouse/employee
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMmY5ODkzNGE1YjViNTRmNWZiMmE1YyIsImlhdCI6MTY0NzI4NjY3NiwiZXhwIjoxNjQ5ODc4Njc2fQ.krVkgdNZdr5tib5ZhFQFRjU0ZQQ7yQQfsJZXpxJb2Vs
