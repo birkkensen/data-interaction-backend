@@ -1,4 +1,11 @@
-### GET method
+### GET all products
 GET http://localhost:8080/api/products
-### POST method
-POST http://localhost:8080/api/products
+
+### GET all orders
+GET http://localhost:8080/api/orders
+
+### GET orders by orderID
+GET http://localhost:8080/api/orders/2
+
+### GET cart content
+GET http://localhost:8080/api/cart
