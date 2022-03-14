@@ -9,3 +9,15 @@ GET http://localhost:8080/api/orders/2
 
 ### GET cart content
 GET http://localhost:8080/api/cart
+
+### GET users
+GET http://localhost:8080/api/warehouse
+
+###
+POST http://localhost:8080/api/warehouse/login
+Content-Type: application/json
+
+{
+  "email": "birk.kensen@hyperisland.se",
+  "password": "penna1"
+}

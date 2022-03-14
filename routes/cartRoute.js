@@ -1,14 +1,22 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import db from "../database/mongodb.js";
 
 const cartRouter = express.Router();
 
 const collection = db().collection("cart");
 
-cartRouter.get("/", async (req, res) => {
-  const cartCursor = await collection.find({}).toArray();
-  res.json(cartCursor).status(200).end();
-});
+cartRouter.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const cartCursor = await collection.find({}).toArray();
+    if (!cartCursor.length) {
+      res.status(302);
+      res.json({ msg: "Cart is empty" });
+    }
+    res.json(cartCursor).status(200).end();
+  })
+);
 
 cartRouter.post("/", async (req, res) => {
   const product = req.body;
