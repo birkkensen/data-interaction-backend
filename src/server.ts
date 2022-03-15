@@ -1,7 +1,9 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import "dotenv/config";
-import { productsRouter, ordersRouter, cartRouter, warehouseRouter } from "./routes/index.js";
+
+import { productsRouter, ordersRouter, cartRouter, warehouseRouter } from "./routes/index";
 
 const app = express();
 

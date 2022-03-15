@@ -1,16 +1,16 @@
-import express from "express";
-import { products } from "../database/collections.js";
+import { Router } from "express";
+import db from "../database/mongodb";
 
-const productsRouter = express.Router();
+const productsRouter = Router();
 
 productsRouter.get("/", async (req, res) => {
-  const productsCursor = await products.find({}).toArray();
+  const productsCursor = await db()?.products.find({}).toArray();
   res.json(productsCursor).status(200).end();
 });
 
 productsRouter.post("/", async (req, res) => {
   const product = req.body;
-  await products.insertOne(product);
+  await db()?.products.insertOne(product);
   res.json(product).status(200).end();
 });
 

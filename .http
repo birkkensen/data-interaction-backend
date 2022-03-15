@@ -11,6 +11,30 @@ GET http://localhost:8080/api/orders/2
 ### GET cart content
 GET http://localhost:8080/api/cart
 
+### POST cart content
+POST http://localhost:8080/api/cart
+Content-Type: application/json
+
+{
+        "productId": 6,
+        "name": "Raspberry Pi",
+        "model": "Model 4",
+        "price": 0,
+        "sku": "000-SKU-127",
+        "qty": 1
+}
+
+### Update qty of item in cart by ID
+PUT http://localhost:8080/api/cart/3
+Content-Type: application/json
+
+{
+  "qty": 2
+}
+
+### Delete from cart
+DELETE http://localhost:8080/api/cart/6
+
 ### Login user
 POST http://localhost:8080/api/warehouse/login
 Content-Type: application/json
@@ -24,8 +48,8 @@ POST http://localhost:8080/api/warehouse/register
 Content-Type: application/json
 
 {
-  "name": "Hagbard Paulson",
-  "email": "hgbrd@email.se",
+  "name": "Burk",
+  "email": "hbue",
   "password": "abc123"
 }
 ###

@@ -1,13 +1,17 @@
-import express from "express";
-import mongodb from "mongodb";
+import express, { Request } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { warehouse } from "../database/collections.js";
 import asyncHandler from "express-async-handler";
-import protect from "../middleware/authMiddleware.js";
+import protect from "../middleware/authMiddleware";
+import { ObjectId } from "mongodb";
+import config from "../config";
+import db from "../database/mongodb";
 
 const warehouseRouter = express.Router();
 
+export interface IGetUserAuthInfoRequest extends Request {
+  user: ObjectId;
+}
 // Register warehouse worker
 warehouseRouter.post(
   "/register",
@@ -18,7 +22,7 @@ warehouseRouter.post(
       throw new Error("Please add all fields");
     }
 
-    const userExists = await warehouse.findOne({ email });
+    const userExists = await db()?.warehouse.findOne({ email });
 
     if (userExists) {
       res.status(400);
@@ -27,13 +31,13 @@ warehouseRouter.post(
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await warehouse.insertOne({
+    await db()?.warehouse.insertOne({
       name,
       email,
       password: hashedPassword,
     });
 
-    const user = await warehouse.findOne({ email });
+    const user = await db()?.warehouse.findOne({ email });
     if (user) {
       res.status(201).json({
         _id: user._id,
@@ -54,7 +58,7 @@ warehouseRouter.post(
   "/login",
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    const user = await warehouse.findOne({ email });
+    const user = await db()?.warehouse.findOne({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
         _id: user._id,
@@ -72,20 +76,20 @@ warehouseRouter.post(
 warehouseRouter.get(
   "/employee",
   protect,
-  asyncHandler(async (req, res) => {
-    const { _id, name, email } = await warehouse.findOne({
+  asyncHandler(async (req: any, res: any) => {
+    const user = await db()?.warehouse.findOne({
       _id: req.user._id,
     });
     res.status(200).json({
-      id: _id,
-      name,
-      email,
+      id: user?._id,
+      name: user?.name,
+      email: user?.email,
     });
   })
 );
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id: ObjectId) => {
+  return jwt.sign({ id }, config.JWT_SECRET, {
     expiresIn: "30d",
   });
 };
