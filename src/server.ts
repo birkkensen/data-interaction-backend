@@ -1,13 +1,12 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import express from "express";
+import express, { Application } from "express";
 import cors from "cors";
-
 import { productsRouter, ordersRouter, cartRouter, warehouseRouter } from "./routes/index";
 
-const app = express();
+const app: Application = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT: string | number = process.env.PORT || 3000;
 
 app.use(express.json());
 

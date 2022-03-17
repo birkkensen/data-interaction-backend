@@ -1,6 +1,10 @@
 ### GET all products
 GET http://localhost:8080/api/products
 
+### GET products by ID
+GET http://localhost:8080/api/products/1
+
+
 ### GET all orders
 GET http://localhost:8080/api/orders
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMmY5ODkzNGE1YjViNTRmNWZiMmE1YyIsImlhdCI6MTY0NzI4NjY3NiwiZXhwIjoxNjQ5ODc4Njc2fQ.krVkgdNZdr5tib5ZhFQFRjU0ZQQ7yQQfsJZXpxJb2Vs
@@ -25,11 +29,11 @@ Content-Type: application/json
 }
 
 ### Update qty of item in cart by ID
-PUT http://localhost:8080/api/cart/3
+PUT http://localhost:8080/api/cart/6
 Content-Type: application/json
 
 {
-  "qty": 2
+  "qty": 9
 }
 
 ### Delete from cart
@@ -40,18 +44,18 @@ POST http://localhost:8080/api/warehouse/login
 Content-Type: application/json
 
 {
-  "email": "hgbrd@email.se",
-  "password": "abc123"
+  "email": "valeria@email.se",
+  "password": "pen"
 }
 ### Register user
 POST http://localhost:8080/api/warehouse/register
 Content-Type: application/json
 
 {
-  "name": "Burk",
-  "email": "hbue",
-  "password": "abc123"
+  "name": "Valeria",
+  "email": "valeria@email.se",
+  "password": "pen"
 }
 ###
 GET http://localhost:8080/api/warehouse/employee
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMmY5ODkzNGE1YjViNTRmNWZiMmE1YyIsImlhdCI6MTY0NzI4NjY3NiwiZXhwIjoxNjQ5ODc4Njc2fQ.krVkgdNZdr5tib5ZhFQFRjU0ZQQ7yQQfsJZXpxJb2Vs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMzFkYzJlZDg3ZDZlZjBjMjkyOWMxYSIsImlhdCI6MTY0NzQzNDgyMSwiZXhwIjoxNjUwMDI2ODIxfQ.5x-_LoDE_mnaIkBpaOtDAC-DYVYr5UwsacGZeDDnREE

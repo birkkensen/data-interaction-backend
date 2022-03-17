@@ -1,25 +1,28 @@
-import { Router } from "express";
+import express, { Router, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import db from "../database/mongodb";
 import protect from "../middleware/authMiddleware";
+import { collections } from "../database/mongodb";
+import { Collection } from "mongodb";
 
-const ordersRouter = Router();
+const ordersRouter: Router = express.Router();
+
+const collection: Collection = collections.orders;
 
 ordersRouter.get(
   "/",
   protect,
-  asyncHandler(async (req, res) => {
-    const orderCursor = await db()?.orders.find({}).toArray();
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const orderCursor = await collection.find({}).toArray();
     res.json(orderCursor).status(200).end();
   })
 );
 
 ordersRouter.get(
   "/:orderId",
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(req.params.orderId);
-    const orderCursor = await db()?.orders.find({ orderId: id }).toArray();
-    if (!orderCursor?.length) {
+    const orderCursor = await collection.find({ orderId: id }).toArray();
+    if (orderCursor.length) {
       res.status(400);
       throw new Error(`No order with id: ${id}`);
     }
@@ -29,9 +32,9 @@ ordersRouter.get(
 
 ordersRouter.post(
   "/",
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const product = req.body;
-    await db()?.orders.insertOne(product);
+    await collection.insertOne(product);
     res.json(product).status(200).end();
   })
 );

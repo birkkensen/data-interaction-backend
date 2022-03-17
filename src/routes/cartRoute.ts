@@ -1,31 +1,35 @@
-import express from "express";
+import express, { Router, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
-import db from "../database/mongodb";
+import { Collection } from "mongodb";
+import { collections } from "../database/mongodb";
 
-const cartRouter = express.Router();
+const cartRouter: Router = express.Router();
+
+const collection: Collection = collections.cart;
 
 cartRouter.get(
   "/",
-  asyncHandler(async (req, res) => {
-    const cartCursor = await db()?.cart.find({}).toArray();
-    if (!cartCursor?.length) {
-      res.status(302);
-      res.json({ msg: "Cart is empty" });
-    }
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const cartCursor = await collection.find({}).toArray();
     res.json(cartCursor).status(200).end();
   })
 );
 
+cartRouter.get("/count", async (req: Request, res: Response): Promise<void> => {
+  const count: number = await collection.countDocuments({});
+  res.json(count).status(200).end();
+});
+
 cartRouter.put(
   "/:id",
-  asyncHandler(async (req, res) => {
-    const id = parseInt(req.params.id);
-    const product = await db()?.cart.findOneAndUpdate(
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const id: number = parseInt(req.params.id);
+    const product = await collection.findOneAndUpdate(
       { productId: id },
       { $set: req.body },
       { upsert: false }
     );
-    if (product?.value) {
+    if (product.value) {
       res.status(200).json(product).end();
     } else {
       res.status(400);
@@ -34,26 +38,26 @@ cartRouter.put(
   })
 );
 
-cartRouter.post("/", async (req, res) => {
+cartRouter.post("/", async (req: Request, res: Response): Promise<void> => {
   const product = req.body;
-  const cartContent = await db()?.cart.find({}).toArray();
-  const isAlreadyInCart = cartContent?.filter(
+  const cartContent = await collection.find({}).toArray();
+  const isAlreadyInCart: boolean = cartContent.some(
     (prod) => prod.productId === parseInt(product.productId)
   );
-  if (isAlreadyInCart?.length) {
-    await db()?.cart.findOneAndUpdate({ productId: req.body.productId }, { $inc: { qty: 1 } });
+  if (isAlreadyInCart) {
+    await collection.findOneAndUpdate({ productId: req.body.productId }, { $inc: { qty: 1 } });
   } else {
-    await db()?.cart.insertOne(product);
+    await collection.insertOne(product);
   }
   res.json(product).status(200).end();
 });
 
 cartRouter.delete(
   "/:id",
-  asyncHandler(async (req, res) => {
-    const id = req.params.id;
-    const product = await db()?.cart.findOneAndDelete({ productId: parseInt(id) });
-    if (product?.value) {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const id: number = parseInt(req.params.id);
+    const product = await collection.findOneAndDelete({ productId: id });
+    if (product.value) {
       res.status(200).json(product).end();
     } else {
       res.status(400);

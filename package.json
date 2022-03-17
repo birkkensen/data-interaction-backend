@@ -1,12 +1,12 @@
 {
   "name": "server",
-  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "start": "node ./dist/server.js",
-    "dev": "ts-node-dev --respawn ./src/server.ts"
+    "dev": "ts-node-dev --respawn ./src/server.ts",
+    "build": "tsc -p ."
   },
   "keywords": [],
   "author": "",

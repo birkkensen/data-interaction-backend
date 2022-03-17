@@ -1,22 +1,14 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, Db } from "mongodb";
 
-const db = () => {
-  try {
-    const mongoClient = new MongoClient("mongodb://localhost:27017");
-    if (!mongoClient.connect()) {
-      mongoClient.connect();
-    }
-    const db = mongoClient.db("data-interaction");
-    const collections = {
-      cart: db.collection("cart"),
-      orders: db.collection("orders"),
-      products: db.collection("products"),
-      warehouse: db.collection("warehouse"),
-    };
-    return collections;
-  } catch (err) {
-    console.error(err);
-  }
+const mongoClient: MongoClient = new MongoClient("mongodb://localhost:27017");
+
+mongoClient.connect();
+
+const db: Db = mongoClient.db("data-interaction");
+
+export const collections = {
+  cart: db.collection("cart"),
+  orders: db.collection("orders"),
+  products: db.collection("products"),
+  warehouse: db.collection("warehouse"),
 };
-
-export default db;

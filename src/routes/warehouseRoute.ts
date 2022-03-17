@@ -1,43 +1,49 @@
-import express, { Request } from "express";
+import express, { Request, Response, Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
-import protect from "../middleware/authMiddleware";
-import { ObjectId } from "mongodb";
 import config from "../config";
-import db from "../database/mongodb";
+import protect from "../middleware/authMiddleware";
+import { Collection, ObjectId } from "mongodb";
+import { collections } from "../database/mongodb";
 
-const warehouseRouter = express.Router();
+const warehouseRouter: Router = express.Router();
 
-export interface IGetUserAuthInfoRequest extends Request {
-  user: ObjectId;
-}
+const collection: Collection = collections.warehouse;
+
 // Register warehouse worker
+
+interface User {
+  name: string;
+  email: string;
+  password: string;
+}
+
 warehouseRouter.post(
   "/register",
-  asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { name, email, password }: User = req.body;
     if (!name || !email || !password) {
       res.status(400);
       throw new Error("Please add all fields");
     }
 
-    const userExists = await db()?.warehouse.findOne({ email });
+    const userExists = await collection.findOne({ email });
 
     if (userExists) {
       res.status(400);
       throw new Error("User already exists!");
     }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt: string = await bcrypt.genSalt(10);
+    const hashedPassword: string = await bcrypt.hash(password, salt);
 
-    await db()?.warehouse.insertOne({
+    await collection.insertOne({
       name,
       email,
       password: hashedPassword,
     });
 
-    const user = await db()?.warehouse.findOne({ email });
+    const user = await collection.findOne({ email });
     if (user) {
       res.status(201).json({
         _id: user._id,
@@ -56,9 +62,9 @@ warehouseRouter.post(
 
 warehouseRouter.post(
   "/login",
-  asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    const user = await db()?.warehouse.findOne({ email });
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email, password }: { email: string; password: string } = req.body;
+    const user = await collection.findOne({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
         _id: user._id,
@@ -76,9 +82,9 @@ warehouseRouter.post(
 warehouseRouter.get(
   "/employee",
   protect,
-  asyncHandler(async (req: any, res: any) => {
-    const user = await db()?.warehouse.findOne({
-      _id: req.user._id,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const user = await collection.findOne({
+      _id: req.user?._id,
     });
     res.status(200).json({
       id: user?._id,
@@ -88,8 +94,8 @@ warehouseRouter.get(
   })
 );
 
-const generateToken = (id: ObjectId) => {
-  return jwt.sign({ id }, config.JWT_SECRET, {
+const generateToken = (id: ObjectId): string => {
+  return jwt.sign({ id }, config.JWT_SECRET as string, {
     expiresIn: "30d",
   });
 };

@@ -1,3 +1,3 @@
 export default {
-  JWT_SECRET: process.env.JWT_SECRET || "default",
+  JWT_SECRET: process.env.JWT_SECRET,
 };
