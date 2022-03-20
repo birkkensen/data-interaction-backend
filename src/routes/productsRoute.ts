@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from "express";
-import { Collection } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { collections } from "../database/mongodb";
 
 const productsRouter: Router = express.Router();
@@ -12,8 +12,8 @@ productsRouter.get("/", async (req: Request, res: Response): Promise<void> => {
 });
 
 productsRouter.get("/:id", async (req: Request, res: Response): Promise<void> => {
-  const id: number = parseInt(req.params.id);
-  const product = await collection.findOne({ productId: id });
+  const id: string = req.params.id;
+  const product = await collection.findOne({ _id: new ObjectId(id) });
   if (product) {
     res.status(200).json(product).end();
   } else {

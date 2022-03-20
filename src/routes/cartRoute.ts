@@ -1,11 +1,12 @@
-import express, { Router, Request, Response } from "express";
+import express, { Router, Request, Response, CookieOptions } from "express";
 import asyncHandler from "express-async-handler";
-import { Collection } from "mongodb";
+import { Collection, ObjectId, WithId } from "mongodb";
 import { collections } from "../database/mongodb";
 
 const cartRouter: Router = express.Router();
 
 const collection: Collection = collections.cart;
+const productCollection: Collection = collections.products;
 
 cartRouter.get(
   "/",
@@ -14,11 +15,6 @@ cartRouter.get(
     res.json(cartCursor).status(200).end();
   })
 );
-
-cartRouter.get("/count", async (req: Request, res: Response): Promise<void> => {
-  const count: number = await collection.countDocuments({});
-  res.json(count).status(200).end();
-});
 
 cartRouter.put(
   "/:id",
@@ -38,19 +34,28 @@ cartRouter.put(
   })
 );
 
-cartRouter.post("/", async (req: Request, res: Response): Promise<void> => {
-  const product = req.body;
-  const cartContent = await collection.find({}).toArray();
-  const isAlreadyInCart: boolean = cartContent.some(
-    (prod) => prod.productId === parseInt(product.productId)
-  );
-  if (isAlreadyInCart) {
-    await collection.findOneAndUpdate({ productId: req.body.productId }, { $inc: { qty: 1 } });
-  } else {
-    await collection.insertOne(product);
-  }
-  res.json(product).status(200).end();
-});
+cartRouter.post(
+  "/",
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { _id, cartId }: { _id: ObjectId; cartId?: ObjectId } = req.body;
+    const product = await productCollection.findOne({ _id: new ObjectId(_id) });
+    if (cartId && product) {
+      const test = await collection.updateOne(
+        { _id: new ObjectId(cartId) },
+        { $push: { products: product } }
+      );
+      // await collection.findOneAndUpdate({ _id: new ObjectId(_id) }, { $inc: { qty: 1 } });
+      res.json(test).status(200).end();
+    } else {
+      if (product) {
+        const response = await collection.insertOne({ products: [product] });
+        res.json({ cartId: response.insertedId }).status(200).end();
+      }
+    }
+
+    res.status(400);
+  })
+);
 
 cartRouter.delete(
   "/:id",
@@ -63,6 +68,14 @@ cartRouter.delete(
       res.status(400);
       throw new Error("No such product in the cart");
     }
+  })
+);
+
+cartRouter.delete(
+  "/",
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    await collection.deleteMany({});
+    res.status(200).end();
   })
 );
 

@@ -12,6 +12,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMmY5ODkzN
 ### GET orders by orderID
 GET http://localhost:8080/api/orders/2
 
+
+### POST to orders
+
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "blh": "nd"
+}
 ### GET cart content
 GET http://localhost:8080/api/cart
 
@@ -20,12 +29,8 @@ POST http://localhost:8080/api/cart
 Content-Type: application/json
 
 {
-        "productId": 6,
-        "name": "Raspberry Pi",
-        "model": "Model 4",
-        "price": 0,
-        "sku": "000-SKU-127",
-        "qty": 1
+"cartId": "6237090ec4ca8b5dbd6840ea",
+"_id" : "623305976535d2d38b10b81e"
 }
 
 ### Update qty of item in cart by ID
@@ -38,6 +43,9 @@ Content-Type: application/json
 
 ### Delete from cart
 DELETE http://localhost:8080/api/cart/6
+
+### Delete from cart
+DELETE http://localhost:8080/api/cart
 
 ### Login user
 POST http://localhost:8080/api/warehouse/login
@@ -52,9 +60,9 @@ POST http://localhost:8080/api/warehouse/register
 Content-Type: application/json
 
 {
-  "name": "Valeria",
-  "email": "valeria@email.se",
-  "password": "pen"
+  "name": "Birk Kensén",
+  "email": "bir.kensenk@gmail.com",
+  "password": "penna1"
 }
 ###
 GET http://localhost:8080/api/warehouse/employee

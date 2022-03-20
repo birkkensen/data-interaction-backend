@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import config from "../config";
 import protect from "../middleware/authMiddleware";
+import { v4 as uuidv4 } from "uuid";
 import { Collection, ObjectId } from "mongodb";
 import { collections } from "../database/mongodb";
 
@@ -36,7 +37,6 @@ warehouseRouter.post(
     }
     const salt: string = await bcrypt.genSalt(10);
     const hashedPassword: string = await bcrypt.hash(password, salt);
-
     await collection.insertOne({
       name,
       email,
