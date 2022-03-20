@@ -38,18 +38,16 @@ cartRouter.post(
   "/",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { _id, cartId }: { _id: ObjectId; cartId?: ObjectId } = req.body;
+    console.log(_id, cartId);
     const product = await productCollection.findOne({ _id: new ObjectId(_id) });
     if (cartId && product) {
-      const test = await collection.updateOne(
-        { _id: new ObjectId(cartId) },
-        { $push: { products: product } }
-      );
+      await collection.updateOne({ _id: new ObjectId(cartId) }, { $push: { products: product } });
       // await collection.findOneAndUpdate({ _id: new ObjectId(_id) }, { $inc: { qty: 1 } });
-      res.json(test).status(200).end();
+      res.status(200).end();
     } else {
       if (product) {
         const response = await collection.insertOne({ products: [product] });
-        res.json({ cartId: response.insertedId }).status(200).end();
+        res.send(response.insertedId).status(200).end();
       }
     }
 
