@@ -42,7 +42,18 @@ cartRouter.post(
     console.log(_id, cartId);
     const product = await productCollection.findOne({ _id: new ObjectId(_id) });
     if (cartId && product) {
-      await collection.updateOne({ _id: new ObjectId(cartId) }, { $push: { products: product } });
+      await collection.updateOne(
+        { _id: new ObjectId(cartId) },
+        {
+          $push: {
+            products: {
+              _id: new ObjectId(),
+              product,
+            },
+          },
+        },
+        { upsert: true } // TODO: Remove when deploying
+      );
       // await collection.findOneAndUpdate({ _id: new ObjectId(_id) }, { $inc: { qty: 1 } });
       res.status(200).end();
     } else {
@@ -57,21 +68,26 @@ cartRouter.post(
 );
 
 cartRouter.delete(
-  "/:id",
+  "/",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const id: number = parseInt(req.params.id);
-    const product = await collection.findOneAndDelete({ productId: id });
-    if (product.value) {
-      res.status(200).json(product).end();
-    } else {
-      res.status(400);
-      throw new Error("No such product in the cart");
-    }
+    const { cartId, id }: { cartId: string; id: string } = req.body;
+    console.log({ cartId, id });
+    const cart = await collection.updateOne(
+      { _id: new ObjectId(cartId) },
+      { $pull: { products: { _id: new ObjectId(id) } } }
+    );
+    // if (product.acknowledged) {
+    //   res.status(200).json(product).end();
+    // } else {
+    //   res.status(400);
+    //   throw new Error("No such product in the cart");
+    // }
+    res.json(cart).end();
   })
 );
 
 cartRouter.delete(
-  "/",
+  "/clear",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     await collection.deleteMany({});
     res.status(200).end();

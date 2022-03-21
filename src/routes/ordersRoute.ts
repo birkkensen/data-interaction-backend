@@ -26,7 +26,7 @@ ordersRouter.get(
       res.status(400);
       throw new Error(`No order with id: ${id}`);
     }
-    res.json(orderCursor);
+    res.json(orderCursor).end();
   })
 );
 

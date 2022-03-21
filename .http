@@ -61,8 +61,8 @@ Content-Type: application/json
 
 {
   "name": "Birk Kensén",
-  "email": "bir.kensenk@gmail.com",
-  "password": "penna1"
+  "email": "birk@gmail.com",
+  "password": "penna123"
 }
 ###
 GET http://localhost:8080/api/warehouse/employee
