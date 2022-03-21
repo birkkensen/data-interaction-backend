@@ -1,6 +1,6 @@
 import express, { Router, Request, Response, CookieOptions } from "express";
 import asyncHandler from "express-async-handler";
-import { Collection, ObjectId, WithId } from "mongodb";
+import { Collection, ObjectId } from "mongodb";
 import { collections } from "../database/mongodb";
 
 const cartRouter: Router = express.Router();
@@ -9,9 +9,10 @@ const collection: Collection = collections.cart;
 const productCollection: Collection = collections.products;
 
 cartRouter.get(
-  "/",
+  "/:id",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const cartCursor = await collection.find({}).toArray();
+    const id: string = req.params.id;
+    const cartCursor = await collection.findOne({ _id: new ObjectId(id) });
     res.json(cartCursor).status(200).end();
   })
 );

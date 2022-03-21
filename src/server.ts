@@ -16,6 +16,8 @@ app.use(
   })
 );
 
+app.use(express.static("public"));
+
 app.use("/api/products", productsRouter);
 
 app.use("/api/orders", ordersRouter);
