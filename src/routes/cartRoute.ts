@@ -39,7 +39,6 @@ cartRouter.post(
   "/",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { _id, cartId }: { _id: ObjectId; cartId?: ObjectId } = req.body;
-    console.log(_id, cartId);
     const product = await productCollection.findOne({ _id: new ObjectId(_id) });
     if (cartId && product) {
       await collection.updateOne(
