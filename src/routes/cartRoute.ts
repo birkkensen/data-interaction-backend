@@ -1,4 +1,4 @@
-import express, { Router, Request, Response, CookieOptions } from "express";
+import express, { Router, Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { Collection, ObjectId } from "mongodb";
 import { collections } from "../database/mongodb";
@@ -57,7 +57,14 @@ cartRouter.post(
       res.status(200).end();
     } else {
       if (product) {
-        const response = await collection.insertOne({ products: [product] });
+        const response = await collection.insertOne({
+          products: [
+            {
+              _id: new ObjectId(),
+              product: product,
+            },
+          ],
+        });
         res.send(response.insertedId).status(200).end();
       }
     }
@@ -70,7 +77,6 @@ cartRouter.delete(
   "/",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { cartId, id }: { cartId: string; id: string } = req.body;
-    console.log({ cartId, id });
     const cart = await collection.updateOne(
       { _id: new ObjectId(cartId) },
       { $pull: { products: { _id: new ObjectId(id) } } }
