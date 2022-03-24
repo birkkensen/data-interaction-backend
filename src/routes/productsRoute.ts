@@ -1,6 +1,7 @@
 import express, { Router, Request, Response } from "express";
 import { Collection, ObjectId } from "mongodb";
 import { collections } from "../database/mongodb";
+import asyncHandler from "express-async-handler";
 
 const productsRouter: Router = express.Router();
 
@@ -10,6 +11,17 @@ productsRouter.get("/", async (req: Request, res: Response): Promise<void> => {
   const productsCursor = await collection.find({}).toArray();
   res.json(productsCursor).status(200).end();
 });
+
+// productsRouter.get(
+//   "/:query",
+//   asyncHandler(async (req: Request, res: Response) => {
+//     const query: string = req.params.query;
+//     const productsCursor = await collection
+//       .find({ name: { $regex: `${query}`, $options: "i" } })
+//       .toArray();
+//     res.json(productsCursor).status(200).end();
+//   })
+// );
 
 productsRouter.get("/:id", async (req: Request, res: Response): Promise<void> => {
   const id: string = req.params.id;

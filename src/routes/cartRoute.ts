@@ -13,7 +13,24 @@ cartRouter.get(
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const id: string = req.params.id;
     const cartCursor = await collection.findOne({ _id: new ObjectId(id) });
-    res.json(cartCursor).status(200).end();
+    const cartItems: { _id: ObjectId; qty: number }[] = cartCursor?.cartItem;
+    const productId: ObjectId[] = cartItems?.map((a: { _id: ObjectId; qty: number }) => a._id);
+    if (productId) {
+      const products = await productCollection.find({ _id: { $in: productId } }).toArray();
+      const totalQty = await collection
+        .aggregate([
+          {
+            $match: { _id: new ObjectId(id) },
+          },
+          {
+            $group: { _id: "$cartItem.qty", qty: { $sum: "$qty" } },
+          },
+        ])
+        .toArray();
+      console.log(totalQty);
+      res.json({ products, cartItems }).status(200).end();
+    }
+    res.status(400);
   })
 );
 
@@ -38,38 +55,44 @@ cartRouter.put(
 cartRouter.post(
   "/",
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { _id, cartId }: { _id: ObjectId; cartId?: ObjectId } = req.body;
+    const { _id, cartId }: { _id: string; cartId?: string } = req.body;
     const product = await productCollection.findOne({ _id: new ObjectId(_id) });
-    if (cartId && product) {
+    const isInCart = await collection.find({ "cartItem._id": new ObjectId(_id) }).toArray();
+    console.log(isInCart);
+    if (isInCart.length && product) {
       await collection.updateOne(
+        { _id: new ObjectId(cartId), "cartItem._id": new ObjectId(_id) },
+        { $inc: { "cartItem.$.qty": 1 } }
+      );
+    } else if (product) {
+      const response = await collection.updateOne(
         { _id: new ObjectId(cartId) },
         {
           $push: {
-            products: {
-              _id: new ObjectId(),
-              product,
+            cartItem: {
+              _id: new ObjectId(_id),
+              qty: 1,
             },
           },
         },
-        { upsert: true } // TODO: Remove when deploying
+        { upsert: true }
       );
-      // await collection.findOneAndUpdate({ _id: new ObjectId(_id) }, { $inc: { qty: 1 } });
-      res.status(200).end();
-    } else {
-      if (product) {
-        const response = await collection.insertOne({
-          products: [
-            {
-              _id: new ObjectId(),
-              product: product,
-            },
-          ],
-        });
-        res.send(response.insertedId).status(200).end();
-      }
+      console.log(response);
+      res.status(200).send(response.upsertedId).end();
     }
+    // if (product && !cartId) {
+    //   const response = await collection.insertOne({
+    //     cartItem: [
+    //       {
+    //         _id: new ObjectId(_id),
+    //         qty: 1,
+    //       },
+    //     ],
+    //   });
+    //   res.status(200).send(response.insertedId).end();
+    // }
 
-    res.status(400);
+    res.status(200).end();
   })
 );
 
@@ -79,7 +102,7 @@ cartRouter.delete(
     const { cartId, id }: { cartId: string; id: string } = req.body;
     const cart = await collection.updateOne(
       { _id: new ObjectId(cartId) },
-      { $pull: { products: { _id: new ObjectId(id) } } }
+      { $pull: { cartItem: { _id: new ObjectId(id) } } }
     );
     // if (product.acknowledged) {
     //   res.status(200).json(product).end();
