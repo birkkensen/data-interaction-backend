@@ -11,7 +11,7 @@ const getCart = asyncHandler(async (req: Request, res: Response): Promise<void> 
 
   // Get the cart and extract the productIDs
   const cartCursor = await collection.findOne({ _id: new ObjectId(cartId) });
-  const cartItems: { _id: ObjectId; qty: number }[] = cartCursor?.cartItem;
+  const cartItems: { _id: ObjectId; qty: number }[] = cartCursor?.cartItems;
   const productIds: ObjectId[] = cartItems?.map((a: { _id: ObjectId; qty: number }) => a._id);
 
   if (productIds) {
@@ -22,7 +22,7 @@ const getCart = asyncHandler(async (req: Request, res: Response): Promise<void> 
           $match: { _id: new ObjectId(cartId) },
         },
         {
-          $addFields: { qty: { $sum: "$cartItem.qty" } },
+          $addFields: { qty: { $sum: "$cartItems.qty" } },
         },
       ])
       .toArray();
@@ -45,12 +45,16 @@ const addToCart = asyncHandler(async (req: Request, res: Response): Promise<void
   const { _id, cartId }: { _id: string; cartId?: string } = req.body;
 
   const product = await productCollection.findOne({ _id: new ObjectId(_id) });
-  const isInCart = await collection.findOne({ "cartItem._id": new ObjectId(_id) });
+  const isInCart = await collection.findOne({
+    _id: new ObjectId(cartId),
+    "cartItems._id": new ObjectId(_id),
+  });
+  // TODO Remeber change
 
   if (isInCart && product) {
     await collection.updateOne(
-      { _id: new ObjectId(cartId), "cartItem._id": new ObjectId(_id) },
-      { $inc: { "cartItem.$.qty": 1 } }
+      { _id: new ObjectId(cartId), "cartItems._id": new ObjectId(_id) },
+      { $inc: { "cartItems.$.qty": 1 } }
     );
     res.status(200).end();
   } else if (product && cartId) {
@@ -58,7 +62,7 @@ const addToCart = asyncHandler(async (req: Request, res: Response): Promise<void
       { _id: new ObjectId(cartId) },
       {
         $push: {
-          cartItem: {
+          cartItems: {
             _id: new ObjectId(_id),
             qty: 1,
           },
@@ -68,7 +72,9 @@ const addToCart = asyncHandler(async (req: Request, res: Response): Promise<void
     );
     res.status(200).send(response.upsertedId).end();
   } else if (product) {
-    const response = await collection.insertOne({ cartItem: [{ _id: new ObjectId(_id), qty: 1 }] });
+    const response = await collection.insertOne({
+      cartItems: [{ _id: new ObjectId(_id), qty: 1 }],
+    });
     res.status(200).send(response.insertedId).end();
   }
 
@@ -89,7 +95,7 @@ const removeItemFromCart = asyncHandler(
     } else {
       await collection.updateOne(
         { _id: new ObjectId(query.cartId) },
-        { $pull: { cartItem: { _id: new ObjectId(query.id) } } }
+        { $pull: { cartItems: { _id: new ObjectId(query.id) } } }
       );
     }
 

@@ -1,42 +1,13 @@
-import express, { Router, Request, Response } from "express";
-import asyncHandler from "express-async-handler";
+import express, { Router } from "express";
 import protect from "../middleware/authMiddleware";
-import { collections } from "../database/mongodb";
-import { Collection } from "mongodb";
+import { getAllOrders, createOrder, shipOrder } from "../controllers/ordersController";
 
 const ordersRouter: Router = express.Router();
 
-const collection: Collection = collections.orders;
+ordersRouter.route("/").get(getAllOrders, protect);
 
-ordersRouter.get(
-  "/",
-  protect,
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const orderCursor = await collection.find({}).toArray();
-    res.json(orderCursor).status(200).end();
-  })
-);
+ordersRouter.route("/").post(createOrder);
 
-ordersRouter.get(
-  "/:orderId",
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const id = parseInt(req.params.orderId);
-    const orderCursor = await collection.find({ orderId: id }).toArray();
-    if (orderCursor.length) {
-      res.status(400);
-      throw new Error(`No order with id: ${id}`);
-    }
-    res.json(orderCursor).end();
-  })
-);
-
-ordersRouter.post(
-  "/",
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const product = req.body;
-    await collection.insertOne(product);
-    res.json(product).status(200).end();
-  })
-);
+ordersRouter.route("/:cartId").post(shipOrder);
 
 export default ordersRouter;
